@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <!-- define o conjunto de caracteres a ser utilizado na exibição do conteúdo de um site -->
+    <meta charset="UTF-8">
+    
+ <!-- Configurações de visualização em dispositivos -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+
+    <!-- Modifica o título da guia em que o meu jogo se encontra -->
+    <title>Exercício do Pássaro</title>
+
+    <!--Adicionar estilo à página-->
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;  
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    
+// Configuração gerais do jogo phaser
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+
+        // Definição das cenas do jogo, preload, create e update
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    // Instanciação do jogo Phaser com as configurações definidas
+    var game = new Phaser.Game(config);
+
+    //Declaração das variáveis que utilizaremos no jogo
+    var passarinho;
+    var rain;
+    var score = 0;
+    var scoreText;
+
+
+// Função de predisposição de imagem que iremos utilizar no código.
+    function preload() {
+         
+        this.load.image('forest', 'assets/forest.jpg');
+        this.load.spritesheet('purple_bird', 'assets/bird-purple.png', {frameWidth: 75, frameHeight: 75});
+        this.load.image('chuva_caindo', 'assets/chuva_caindo.png');
+    }
+// Função de criação do jogo em sí
+    function create() {
+
+        
+
+
+         // Adiciona uma imagem de fundo à cena
+        this.add.image(400, 300, 'forest').setScale(1.2);
+
+         // Adiciona o personagem principal
+        passarinho = this.add.sprite(100, 550, 'purple_bird').setScale(1.3);
+        
+        //Adicionando a chuva
+        chuva = this.add.image(150, 0, 'chuva_caindo').setScale(0.45);
+
+// Criação da animação de voo para o pássaro
+        this.anims.create({
+
+            //Declarando uma chave para chamarmos a animação
+            key: 'fly',
+
+            //Indicando os frames que iremos utilizar, assim como suas configurações
+            frames: this.anims.generateFrameNumbers('purple_bird', {start: 0, end: 7}),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        // Inicia a animação de voo do pássaro
+        passarinho.anims.play('fly', true);
+
+        // Adicionar uma chuva como partículas 
+        rain = this.add.particles('chuva_caindo');
+        var emitter = rain.createEmitter({
+
+            // Posição x das partículas (aleatório entre 0 e 800)
+            x: { min: 0, max: 800 },
+
+            // Posição y das partículas (começa no topo da tela)
+            y: 0,
+
+            // Tempo de vida das partículas (2 segundos)
+            lifespan: 2000,
+
+            // Velocidade vertical das partículas
+            speedY: { min: 200, max: 400 },
+            
+             // Quantidade de partículas emitidas a cada vez
+            quantity: 5,
+
+            // Escala inicial e final das partículas
+            scale: { start: 0.1, end: 0.3 },
+
+            // Frequência de emissão de partículas (em milissegundos)
+            frequency: 500,
+
+        });
+
+    
+    }
+
+    function update() { 
+        
+        // Adicionando a gota de chuva gigante utilizando o for
+        for(var chuvona = 0; chuvona < 3; chuvona++){
+            chuva.y += chuvona
+        }
+        
+        //Condição para reiniciar a gota gigante
+        if(chuva.y > 700){
+
+            chuva.y = 0
+
+        }
+
+    //Adicionando a movimentação diagonal do pássaro 
+    //por meio da lógica
+
+
+    // Verifica se a posição x do pássaro é igual a 100
+        if (passarinho.x === 100) { 
+
+            // Define a variável 'ida' como verdadeira para indicar que o pássaro está indo para a direita
+            passarinho.ida = true;
+
+             // Realiza a reflexão do sprite horizontalmente 
+            passarinho.setFlip(false, false);
+        }
+
+        // Verifica se a posição x do pássaro é menor que 700 e se a variável 'ida' é verdadeira
+        if (passarinho.x < 700 && passarinho.ida === true) {
+
+            // Move o pássaro para a direita e para cima, realizando um movimento na diagonal para cima
+            passarinho.x += 5;
+            passarinho.y -= 5;
+        }
+
+         // Verifica se a posição x do pássaro é igual a 700
+        if (passarinho.x === 700) {
+
+            // Define a variável 'ida' como falsa para indicar que o pássaro está voltando para a esquerda
+            passarinho.ida = false;
+
+            // Espelha o sprite horizontalmente
+            passarinho.setFlip(true, false);
+        }
+
+        // Verifica se a posição x do pássaro é maior que 100 e se a variável 'ida' é falsa
+        if (passarinho.x > 100 && passarinho.ida === false) {
+
+            // Move o pássaro para a direita e para baixo, realizando um movimento na diagonal para baixo
+            passarinho.x -= 5;
+            passarinho.y += 5;
+        } 
+    }
+
+</script>
+
+</body>
+</html>
